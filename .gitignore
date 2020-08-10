@@ -6,3 +6,6 @@ lib
 lib64
 bin
 white.orp
+.orp
+pyvenv.cfg
+regression_analysis
