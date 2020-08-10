@@ -5,12 +5,16 @@ from bs4 import BeautifulSoup
 from json import loads
 
 class contextual_news_scraper:
-	def __init__(self, term, year, pages=1):
+	'''This program will use the Contexutual News API to download news articles given a key word and return a data frame with relevant information about the articless'''
+	def __init__(self, term, year, pages=1, start_month=1, end_month=13):
 
 		self.pages = pages
 		self.term = term
 		self.year = year
 
+		#lets you decide what month to start your search
+		self.start_month = start_month
+		self.end_month = end_month
 
 	def get_news_df(self):
 		#establishing all the data points that we want to get 
@@ -23,16 +27,21 @@ class contextual_news_scraper:
 		descriptions = []
 		bodies = []
 
-		#going through the requests and actually collecting all the above data points
-		for month in range(1, 13):
-			for page in range(self.pages):
+		#Main loop of the function. will loop through all the months in the given year to get data
+		for month in range(self.start_month, self.end_month):
+
+			#reads through all the pages on this given query
+			for page in range(self.pages):	
+
 				try:
-					response_json = self.get_json(page, month)
+					response_json = self.get_json(page, month) #function call to the Search API itself
 				except:
-					break
-				#breaks from the loop and saves the values that we have
+					break  #breaks from the loop and saves the values that we have
+
+				#if the page has no information, we will move to the next one
 				if len(response_json['value']) == 0:
 					break
+				
 				for value in response_json['value']:
 					#putting titles in list
 					
@@ -58,16 +67,21 @@ class contextual_news_scraper:
 
 
 	def get_json(self, page, month):
-		url = "https://contextualwebsearch-websearch-v1.p.rapidapi.com/api/Search/NewsSearchAPI"
-		if month == 12:
+		url = "https://contextualwebsearch-websearch-v1.p.rapidapi.com/api/Search/NewsSearchAPI" #url to the contexual search api
+
+		#QUERIES TO API
+		if month == 12: #needs custom syntax for the month of december
 			querystring = {"fromPublishedDate":f"{month}/01/{self.year}",f"toPublishedDate":f"{month}/31/{self.year}", "autoCorrect":"false","pageNumber":page,"pageSize":f"{self.pages}","q":self.term,"safeSearch":"false"}
-		else:
+		
+		else: #query to all months that are not december
 			querystring = {"fromPublishedDate":f"{month}/01/{self.year}",f"toPublishedDate":f"{month+1}/01/{self.year}", "autoCorrect":"false","pageNumber":page,"pageSize":f"{self.pages}","q":self.term,"safeSearch":"false"}
+		
 		headers = {
 		    'x-rapidapi-host': "contextualwebsearch-websearch-v1.p.rapidapi.com",
 		    'x-rapidapi-key': "94ed915629msh28a8aee42e9c89dp1cdc6ejsn5fed886c6b11"
 		    }
-		#gets the page that we want
+		
+		#Returns the response page from the API
 		response = requests.request("GET", url, headers=headers, params=querystring)
 
 	
@@ -85,12 +99,22 @@ class contextual_news_scraper:
 
 if __name__ == '__main__':
 
+
+
 	years = [2018, 2019]
 	coins = ['bitcoin', 'ethereum', 'zcash', 'litecoin']
+	start_month = 1
+	end_month = 13
+	
 	for coin in coins:
+
 		for year in years:
-			scraper = contextual_news_scraper(coin, year, pages=50)
-			news_df = scraper.get_news_df()
-			news_df.to_csv(f'../data/news_data/{year}/{year}_{coin}_dataframe.csv')
+
+			scraper = contextual_news_scraper(coin, year, pages=50, start_month=start_month, end_month=end_month) #initializes scraper
+			news_df = scraper.get_news_df() #scrapes data and return dataframe
+
+			outfile_path = f'../data/news_data_updated/{year}_{coin}_dataframe.csv'	#sets path of outfile	
+
+			news_df.to_csv(outfile_path) #saves dataframe to csv file
 
 			print('News Data Frame sucessfully saved to disk!')

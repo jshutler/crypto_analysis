@@ -1,15 +1,17 @@
 from textblob import TextBlob 
 import pandas as pd 
 
-def main(coin,year):
-	df = pd.read_csv(f'clean_csv_dataframes/{year}_{coin}_dataframe.csv', index_col=0)
-	#applies the function to everysingle value in the column
-	df['sentiment_polarity'] = df['title'].apply(sentiment_analysis_polarity)
+def main(coin,year, infile, outfile):
+
+	df = pd.read_csv(infile)
 
 	#applies the function to everysingle value in the column
-	df['sentiment_subjectivity'] = df['title'].apply(sentiment_analysis_subjectivity)
+	df['sentiment_polarity'] = df['processed_titles'].apply(sentiment_analysis_polarity)
 
-	df.to_csv(f'clean_csv_dataframes/{year}_{coin}_dataframe.csv')
+	#applies the function to everysingle value in the column
+	df['sentiment_subjectivity'] = df['processed_titles'].apply(sentiment_analysis_subjectivity)
+
+	df.to_csv(outfile)
 
 
 
@@ -23,6 +25,13 @@ def sentiment_analysis_subjectivity(df):
 
 
 if __name__ == '__main__':
-	years = [2017, 2018, 2019]
+	years = range(2018, 2020)
+	coins = ['bitcoin', 'ethereum', 'Zcash', 'litecoin']
+	
 	for year in years:
-		main('bitcoin', year)
+		for coin in coins:
+			print(year,coin)
+			infile = f'../data/news_data_collected_01_2020/processed_data/{year}/{year}_{coin}_dataframe.csv'
+			outfile = f'../data/news_data_collected_01_2020/processed_data/{year}/{year}_{coin}_dataframe.csv'
+			
+			main('coin', year, infile, outfile)

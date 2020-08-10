@@ -3,9 +3,12 @@ import pandas as pd
 from pytz import timezone
 
 class datetime_editor:
-	def __init__(self, coin, year):
-		self.df_name = f'raw_csv_dataframes/{year}_{coin}_dataframe.csv'
-		self.df = pd.read_csv(self.df_name, index_col =0)
+	'''This script will format the datetime objects we want for our analysis of the news article data set. 
+	It will provide the datetime in pst, and give the day of week, hour, minute, and whether or not it was a weekend'''
+	def __init__(self, coin, year, infile, outfile):
+		self.infile = infile
+		self.outfile = outfile
+		self.df = pd.read_csv(infile, index_col =0)
 
 
 	def run(self):
@@ -19,8 +22,9 @@ class datetime_editor:
 		self.df['weekend'] = self.get_weekend()
 		
 
-		self.df.to_csv(self.df_name)
-		print('saved to disk')
+		self.df.to_csv(self.outfile) #SAVING DATA TO OUTFILE
+
+		print(f'{self.outfile} saved to disk')
 
 
 
@@ -60,9 +64,17 @@ class datetime_editor:
 
 
 if __name__ == '__main__':
-	years = [2017, 2018, 2019]
+	
+	coins = ['bitcoin', 'ethereum', 'Zcash', 'litecoin']
+	years = range(2018, 2020)
 	for year in years:
-		editor = datetime_editor('bitcoin', year)
+		for coin in coins:
+			#establishign where we are reading and writing our data to
+			infile = f'../data/news_data_collected_01_2020/preprocessed_data/{year}/{year}_{coin}_dataframe.csv'
+			outfile = f'../data/news_data_collected_01_2020/processed_data/{year}/{year}_{coin}_dataframe.csv'
+		
+
+		editor = datetime_editor(coin, year, infile, outfile)
 		editor.run()
 	# editor = datetime_editor(2017, 'bitcoin')
 	# editor.get_weekend()

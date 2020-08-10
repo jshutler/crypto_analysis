@@ -1,3 +1,8 @@
 testing/
 data/
 test.py
+venv
+lib
+lib64
+bin
+white.orp
