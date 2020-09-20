@@ -1,3 +1,5 @@
+# Cryptocurrency Analysis through NLP
+
 This is my ongoing Research Senior Project at Cal Poly San Luis Obispo that I'm performing with Professor Pratish Patel and Professor Ziemowit Bednarek.
 
 All code thus far has been written by me exclusively.
